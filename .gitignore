@@ -1,0 +1,32 @@
+#python
+__pycahce__/
+*.py[cod]
+*.pyo
+*.pyd
+
+#local database
+*.db
+
+#terraform
+terraform/.terraform/
+terraform/*.tfstate
+terraform/*.tfstate.*
+terraform/crash.log
+terraform/crash.*.log
+
+#terraform variable files
+terraform/*.tfvars
+terraform/*.tfvars.json
+
+#enviroment / secrets
+.env
+.env.*
+!.env.example
+
+#IDE / Editor
+.vscode/
+.idea/
+
+#os
+.DS_Store
+Thumbs.db

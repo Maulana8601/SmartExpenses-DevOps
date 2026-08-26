@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartExpense - Kelola Keuangan Pribadi</title>
+    <meta name="description" content="Aplikasi Pelacak Keuangan dan Pengeluaran Harian berbasis Python FastAPI & Modern Web Frontend">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+
+    <div class="background-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <div class="app-container">
+
+        <!-- HEADER -->
+        <header class="app-header">
+            <div class="brand">
+                <div class="logo-icon">
+                    <i data-lucide="wallet"></i>
+                </div>
+                <div class="brand-text">
+                    <h1>SmartExpense</h1>
+                    <p class="subtitle">Python Full-stack Financial Dashboard</p>
+                </div>
+            </div>
+            
+            <div class="header-actions">
+                <div class="server-status">
+                    <span class="status-dot"></span>
+                    <span class="status-text">Backend Python Active</span>
+                </div>
+                <button id="btnOpenModal" class="btn btn-primary btn-glow">
+                    <i data-lucide="plus-circle"></i>
+                    <span>Tambah Transaksi</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- MAIN DASHBOARD -->
+        <main class="dashboard-grid">
+
+            <!-- METRIC CARDS -->
+            <section class="metrics-row" aria-label="Ringkasan Keuangan">
+                
+                <!-- Saldo Utama -->
+                <div class="card metric-card balance-card">
+                    <div class="card-header">
+                        <span class="card-label">Total Saldo Bersih</span>
+                        <div class="icon-badge icon-indigo">
+                            <i data-lucide="scale"></i>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="amount-wrapper">
+                            <h2 id="totalBalance" class="amount">Rp 0</h2>
+                        </div>
+                        <div class="metric-footer">
+                            <span id="healthBadge" class="badge badge-success">
+                                <i data-lucide="trending-up"></i> Kondisi Sehat
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Total Pemasukan -->
+                <div class="card metric-card income-card">
+                    <div class="card-header">
+                        <span class="card-label">Total Pemasukan</span>
+                        <div class="icon-badge icon-emerald">
+                            <i data-lucide="arrow-down-left"></i>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="amount-wrapper">
+                            <h2 id="totalIncome" class="amount text-emerald">Rp 0</h2>
+                        </div>
+                        <p class="metric-desc">Total dana masuk tercatat</p>
+                    </div>
+                </div>
+
+                <!-- Total Pengeluaran -->
+                <div class="card metric-card expense-card">
+                    <div class="card-header">
+                        <span class="card-label">Total Pengeluaran</span>
+                        <div class="icon-badge icon-rose">
+                            <i data-lucide="arrow-up-right"></i>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="amount-wrapper">
+                            <h2 id="totalExpense" class="amount text-rose">Rp 0</h2>
+                        </div>
+                        <p class="metric-desc">Total dana keluar tercatat</p>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- FINANCIAL HEALTH & BUDGET PROGRESS BAR -->
+            <section class="card budget-card">
+                <div class="budget-header">
+                    <div class="budget-title">
+                        <i data-lucide="pie-chart"></i>
+                        <h3>Rasio Pengeluaran terhadap Pemasukan</h3>
+                    </div>
+                    <span id="budgetRatioText" class="budget-ratio font-mono">0% Terpakai</span>
+                </div>
+                <div class="progress-bar-container">
+                    <div id="budgetProgressBar" class="progress-bar" style="width: 0%;"></div>
+                </div>
+                <div class="budget-footer">
+                    <span class="text-muted">Target Alokasi Ideal: Pengeluaran &lt; 70% Pemasukan</span>
+                    <span id="transactionCountBadge" class="badge badge-outline">0 Transaksi</span>
+                </div>
+            </section>
+
+            <!-- CONTENT SPLIT: TRANSACTIONS LIST & CATEGORY BREAKDOWN -->
+            <div class="content-layout">
+
+                <!-- MAIN TRANSACTIONS LIST SECTION -->
+                <section class="card main-content-card">
+                    
+                    <!-- CONTROL BAR (Search & Filters) -->
+                    <div class="controls-bar">
+                        <div class="search-box">
+                            <i data-lucide="search" class="search-icon"></i>
+                            <input type="text" id="searchInput" placeholder="Cari transaksi atau catatan..." autocomplete="off">
+                            <button id="btnClearSearch" class="btn-icon btn-clear hidden" title="Hapus pencarian">
+                                <i data-lucide="x"></i>
+                            </button>
+                        </div>
+
+                        <div class="filter-group">
+                            <!-- Type Pills -->
+                            <div class="type-pills">
+                                <button class="pill active" data-type="all">Semua</button>
+                                <button class="pill" data-type="income">Pemasukan</button>
+                                <button class="pill" data-type="expense">Pengeluaran</button>
+                            </div>
+
+                            <!-- Category Selector -->
+                            <select id="categoryFilter" class="select-input">
+                                <option value="all">Semua Kategori</option>
+                                <option value="Gaji">Gaji</option>
+                                <option value="Freelance">Freelance</option>
+                                <option value="Belanja">Belanja</option>
+                                <option value="Makanan">Makanan</option>
+                                <option value="Tagihan">Tagihan</option>
+                                <option value="Investasi">Investasi</option>
+                                <option value="Hiburan">Hiburan</option>
+                                <option value="Lain-lain">Lain-lain</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- TRANSACTIONS LIST CONTAINER -->
+                    <div class="transactions-container">
+                        <div id="loadingSpinner" class="spinner-wrapper hidden">
+                            <div class="spinner"></div>
+                            <p>Memuat data dari Python backend...</p>
+                        </div>
+
+                        <div id="emptyState" class="empty-state hidden">
+                            <div class="empty-icon">
+                                <i data-lucide="inbox"></i>
+                            </div>
+                            <h3>Tidak Ada Transaksi</h3>
+                            <p>Tidak ada transaksi yang cocok dengan kriteria pencarian Anda.</p>
+                        </div>
+
+                        <div id="transactionsList" class="transactions-list">
+                            <!-- Transaksi akan dirender secara dinamis di sini -->
+                        </div>
+                    </div>
+
+                </section>
+
+                <!-- SIDEBAR: CATEGORIES & QUICK STATS -->
+                <aside class="sidebar-section">
+                    <div class="card sidebar-card">
+                        <div class="sidebar-header">
+                            <i data-lucide="grid"></i>
+                            <h3>Rincian Per Kategori</h3>
+                        </div>
+                        <div id="categoriesList" class="categories-list">
+                            <!-- Kategori breakdown akan dirender dinamis -->
+                        </div>
+                    </div>
+
+                    <div class="card sidebar-card info-card">
+                        <div class="sidebar-header">
+                            <i data-lucide="cpu"></i>
+                            <h3>Arsitektur Aplikasi</h3>
+                        </div>
+                        <ul class="tech-stack-list">
+                            <li>
+                                <span class="tech-dot python"></span>
+                                <div>
+                                    <strong>Python FastAPI</strong>
+                                    <p>Async REST API & Static Server</p>
+                                </div>
+                            </li>
+                            <li>
+                                <span class="tech-dot sqlite"></span>
+                                <div>
+                                    <strong>SQLite Database</strong>
+                                    <p>Persebaran & Penyimpanan Data</p>
+                                </div>
+                            </li>
+                            <li>
+                                <span class="tech-dot web"></span>
+                                <div>
+                                    <strong>Vanilla HTML/CSS/JS</strong>
+                                    <p>Glassmorphic UI & Dynamic Fetch</p>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </aside>
+
+            </div>
+
+        </main>
+
+        <!-- FOOTER -->
+        <footer class="app-footer">
+            <p>SmartExpense &copy; 2026 — Dibuat dengan <strong>Python (FastAPI) & Frontend Web</strong></p>
+        </footer>
+
+    </div>
+
+    <!-- MODAL FORM TAMBAH / EDIT TRANSAKSI -->
+    <div id="transactionModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="modal-container card">
+            <div class="modal-header">
+                <h3 id="modalTitle">Tambah Transaksi Baru</h3>
+                <button id="btnCloseModal" class="btn-icon">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            
+            <form id="transactionForm">
+                <input type="hidden" id="txId" value="">
+
+                <div class="form-group">
+                    <label for="txTitle">Judul Transaksi <span class="required">*</span></label>
+                    <input type="text" id="txTitle" placeholder="Misal: Gaji Bulanan, Makan Siang" required maxlength="100">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="txAmount">Jumlah Uang (Rp) <span class="required">*</span></label>
+                        <input type="number" id="txAmount" placeholder="100000" min="1" step="any" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="txType">Tipe Transaksi <span class="required">*</span></label>
+                        <select id="txType" required>
+                            <option value="expense">Pengeluaran (-)</option>
+                            <option value="income">Pemasukan (+)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="txCategory">Kategori <span class="required">*</span></label>
+                        <select id="txCategory" required>
+                            <option value="Gaji">Gaji</option>
+                            <option value="Freelance">Freelance</option>
+                            <option value="Belanja">Belanja</option>
+                            <option value="Makanan">Makanan</option>
+                            <option value="Tagihan">Tagihan</option>
+                            <option value="Investasi">Investasi</option>
+                            <option value="Hiburan">Hiburan</option>
+                            <option value="Lain-lain">Lain-lain</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="txDate">Tanggal <span class="required">*</span></label>
+                        <input type="date" id="txDate" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="txNotes">Catatan Opsional</label>
+                    <textarea id="txNotes" rows="3" placeholder="Rincian tambahan atau lokasi..." maxlength="255"></textarea>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" id="btnCancelModal" class="btn btn-secondary">Batal</button>
+                    <button type="submit" id="btnSubmitModal" class="btn btn-primary">
+                        <i data-lucide="check"></i>
+                        <span>Simpan Transaksi</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <script src="/static/app.js"></script>
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+    </script>
+</body>
+</html>
