@@ -28,3 +28,6 @@ jobs:
 
       - name: Check Python Syntax
         run: python -m compileall .
+
+      - name: Run Tests
+        run: python -m pytest -v
