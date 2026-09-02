@@ -30,3 +30,4 @@ terraform/*.tfvars.json
 #os
 .DS_Store
 Thumbs.db
+actions-runner/
